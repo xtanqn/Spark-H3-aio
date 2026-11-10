@@ -37,7 +37,7 @@
 > The release supports ComfyUI 0.38.x–0.40.x and 0.42.x–0.44.x.
 > **For production use, we recommend the default `spark-h3-kitchen` 0.2.37,
 > which delivered better speed and stability in release testing.**
-> **[Read the v0.2.0 release notes](docs/release_comfyui_v020.md)**
+> **[Read the v0.2.0 release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.2.0)**
 
 > **VPack v0.1.0:** A separate ComfyUI plugin that compresses reference
 > videos in Ref2VA workflows.

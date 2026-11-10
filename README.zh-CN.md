@@ -37,7 +37,7 @@
 > 0.42.x–0.44.x。
 > **正式使用明确推荐默认的 `spark-h3-kitchen` 0.2.37；该版本在发布测试中的
 > 速度和稳定性均优于 0.2.39。**
-> **[查看 v0.2.0 发布说明](docs/release_comfyui_v020.md)**
+> **[查看 v0.2.0 发布说明](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.2.0)**
 
 > **VPack v0.1.0：** 独立的 ComfyUI 插件，用于压缩 Ref2VA 任务中的参考视频；
 > 推荐使用默认的 `2/5`。
