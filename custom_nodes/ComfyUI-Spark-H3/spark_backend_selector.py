@@ -5,7 +5,8 @@
 拿到张量时，再按当前设备的 SM 版本把对应目录加入 ``sys.path`` 并导入。
 
 节点包放进 ``custom_nodes/`` 即可，不需要 install.py、解包命令或启动脚本。
-同一个镜像可以同时服务 RTX 30 / 40 / 50 系。
+同一个节点目录可以同时服务 RTX 30 / 40 / 50 系，并同时携带 Linux 的
+``_C.abi3.so`` 与 Windows 的 ``_C.abi3.pyd``，按 ``sys.platform`` 自动加载。
 """
 
 from __future__ import annotations

@@ -2,6 +2,7 @@
 !custom_nodes/ComfyUI-Spark-H3/assets/adaln_curve_projection.safetensors
 __pycache__/
 *.py[cod]
+!custom_nodes/ComfyUI-Spark-H3/kernels/**/_C.abi3.pyd
 .pytest_cache/
 .venv/
 .ruff_cache/
