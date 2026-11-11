@@ -1,0 +1,11 @@
+# 只需要把节点目录复制进镜像。构建期不需要 GPU，不需要执行任何安装脚本。
+#
+# 目录里已经包含 sm86 / sm89 / sm120 三套 CUDA 内核，
+# ComfyUI 启动时会按实际显卡自动选择。
+
+COPY custom_nodes/ComfyUI-Spark-H3 /opt/ComfyUI/custom_nodes/ComfyUI-Spark-H3
+
+# 可选：如果这个镜像以前跑过官方 install.py，
+# site-packages 里可能残留一个单架构的 spark-h3-kitchen。
+# 它不会覆盖包内内核，但会白占 13 MB；加这一行清理（没有残留时也安全）：
+# RUN /opt/ComfyUI/.venv/bin/python -m pip uninstall -y spark-h3-kitchen || true

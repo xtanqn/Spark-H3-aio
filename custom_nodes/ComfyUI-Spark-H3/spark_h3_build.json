@@ -1,0 +1,9 @@
+{
+  "architecture": "sm120",
+  "cuda_tag": "cu130",
+  "kernel_wheels": [
+    "spark_h3_kitchen-0.2.37+spark.h3.sm120.cu130.1-cp312-abi3-linux_x86_64.whl",
+    "spark_h3_kitchen-0.2.39+spark.h3.sm120.cu130.1-cp312-abi3-linux_x86_64.whl"
+  ],
+  "platform": "linux-x86_64"
+}

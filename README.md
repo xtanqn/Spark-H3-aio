@@ -1,218 +1,136 @@
-<div align="center">
+# Spark-H3-aio
 
-<h1><img src="assets/spark-h3-wordmark.png" alt="Spark-H3" width="270"></h1>
-<h3>Adaptive Block Sparse Attention for MiniMax-H3</h3>
+Spark-H3 的**通用整合包**：同一个节点目录，在 RTX 30 / 40 / 50 系显卡上都能直接运行，
+不需要按显卡架构分别安装，也不需要安装脚本或启动脚本。
 
-<p><strong>Reblock similar tokens · Reweight tail tokens</strong></p>
+基于 [zechengtang/Spark-H3](https://github.com/zechengtang/Spark-H3) v0.2.0（Apache-2.0）制作。
 
-<p>
-  <a href="https://zechengtang.github.io/Spark-H3/"><img src="https://img.shields.io/badge/Blog-Spark--H3-f97316?style=flat-square" alt="Spark-H3 technical blog"></a>
-  <img src="https://img.shields.io/badge/arXiv-Spark--H3-b31b1b?style=flat-square" alt="Spark-H3 on arXiv">
-  <a href="https://huggingface.co/Aazeus/Spark-H3"><img src="https://img.shields.io/badge/%F0%9F%A4%97_Hugging_Face-Spark--H3-ffc107?style=flat-square" alt="Spark-H3 on Hugging Face"></a>
-  <a href="comfyui/README.md"><img src="https://img.shields.io/badge/ComfyUI-Spark_Node-f97316?style=flat-square" alt="Spark-H3 ComfyUI node"></a>
-  <a href="#special-thanks"><img src="https://img.shields.io/badge/Special_Thanks-Community_Contributors-e11d48?style=flat-square" alt="Special thanks to community contributors"></a>
-  <a href="h3_sparse_attention/README.md"><img src="https://img.shields.io/badge/Docs-Usage_%26_Configuration-2563eb?style=flat-square" alt="Usage and configuration guide"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-15803d?style=flat-square" alt="License: Apache 2.0"></a>
-  <a href="https://github.com/zechengtang/Spark-H3/releases"><img src="https://img.shields.io/github/downloads/zechengtang/Spark-H3/total?style=flat-square&amp;label=Downloads" alt="Total GitHub release downloads"></a>
-</p>
-
-<p>
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
-</p>
-
-<p>
-  <a href="#demo">🎬 Demo</a> &nbsp;·&nbsp;
-  <a href="#quick-start">🚀 Quick Start</a> &nbsp;·&nbsp;
-  <a href="#comfyui-installation">🧩 ComfyUI</a> &nbsp;·&nbsp;
-  <a href="https://zechengtang.github.io/Spark-H3/">📖 Technical Blog</a> &nbsp;·&nbsp;
-  <a href="#project-status">🧭 Project Status</a>
-</p>
-
-</div>
-
-> [!IMPORTANT]
-> **ComfyUI v0.2.0 release:** Spark-H3 now uses the isolated
-> `spark-h3-kitchen` distribution and `spark_h3_kitchen` import namespace.
-> It no longer replaces or pins ComfyUI's official `comfy-kitchen` package.
-> The release supports ComfyUI 0.38.x–0.40.x and 0.42.x–0.44.x.
-> **For production use, we recommend the default `spark-h3-kitchen` 0.2.37,
-> which delivered better speed and stability in release testing.**
-> **[Read the v0.2.0 release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.2.0)**
-
-> **VPack v0.1.0:** A separate ComfyUI plugin that compresses reference
-> videos in Ref2VA workflows.
-> **[VPack GitHub repository](https://github.com/zechengtang/VPack)**
-
-> 👉 [Ref2VA 任务加速解决方案](docs/sparse_scope.md#ref2va-任务加速解决方案)
-
----
-
-<a id="demo"></a>
-
-## 🎬 Demo
-
-Native MiniMax-H3 · VDN Selected Prompt 06 · 1344×768 · 14.4 seconds.
-The three panels compare Dense, Spark-H3 Fidelity (2.19×), and Spark-H3 Speed (3.12×).
-The animated preview and linked clip cover the final 5.4 seconds, starting at 9 seconds.
-
-[![Animated Native MiniMax-H3 attic comparison: Dense, Spark-H3 Fidelity, and Spark-H3 Speed](assets/h3-native-attic-comparison-9s-to-end.webp)](assets/h3-native-attic-comparison-9s-to-end.mp4)
-
-<p align="center"><a href="https://huggingface.co/Aazeus/Spark-H3/resolve/main/comfyui/demos/H3_native_vdn_selected_0006_dense_fidelity_speed_native_resolution.mp4">Watch the full 14.4-second comparison</a></p>
-
-- [Veda / Sol / Spark: subjective visual quality and speed comparison (Bilibili)](https://www.bilibili.com/video/BV1zynA6aEZG/)
-- [Spark-H3 + VPack on Ref2VA (Bilibili)](https://www.bilibili.com/video/BV1i6J163EGG/)
-
-## ✨ Spark-Attn
-
-Spark-Attn is a block sparse attention method for MiniMax-H3 video generation.
-It combines two operations:
-
-- **🧩 Reblocking** groups similar tokens into blocks so sparse attention can
-  select more relevant interactions.
-- **⚖️ Reweighting** assigns different weights to tokens within each tail block
-  when building key/value summaries, with a correction for attention mass.
-
-Spark-H3 provides the Spark attention kernels and MiniMax-H3 inference integration.
-
-<a id="quick-start"></a>
-
-## 🚀 Quick Start
-
-Set up your H3 pipeline using the [upstream MiniMax-H3 instructions](https://github.com/MiniMax-AI/MiniMax-H3),
-then install Spark in the same environment with a compatible PyTorch/CUDA stack:
+## 快速开始
 
 ```bash
-python -m pip install -e '.[cuda]'
+cp -r custom_nodes/ComfyUI-Spark-H3  <你的 ComfyUI>/custom_nodes/
 ```
 
-Wrap an already loaded pipeline with the Spark installer:
+重启 ComfyUI。就这两步。
 
-```python
-from h3_sparse_attention import install_h3_spark_attn
+Dockerfile：
 
-# MiniMaxH3Scheduler includes the terminal sigma=0 in num_inference_steps,
-# but that terminal point does not run the transformer.
-num_denoise_steps = 19
-num_inference_steps = num_denoise_steps + 1
-
-with install_h3_spark_attn(
-    pipe.transformer,
-    num_denoise_steps=num_denoise_steps,
-    warmup_mode="warmup_steps",
-    warmup_steps=4,
-    dense_layers=0,
-    topk_ratio=0.1,
-):
-    result = pipe(**inputs, num_inference_steps=num_inference_steps)
+```dockerfile
+COPY custom_nodes/ComfyUI-Spark-H3 /opt/ComfyUI/custom_nodes/ComfyUI-Spark-H3
 ```
 
-<a id="comfyui-installation"></a>
+不需要 `install.py`，不需要解包命令，不需要 entrypoint 或开机启动项。
+`custom_nodes` 只读也可以运行。
 
-## 🧩 ComfyUI Installation
+## 为什么通用
 
-Spark-H3 v0.2.0 provides standalone nodes for ComfyUI 0.38.x–0.40.x and
-0.42.x–0.44.x. Its isolated `spark-h3-kitchen` backend is installed alongside
-ComfyUI's official `comfy-kitchen` package instead of replacing it. Linux and
-Windows x86_64 packages are produced for SM86, SM89, and SM120.
-Choose the CUDA 13.0 package matching your operating system and GPU
-architecture. ComfyUI and model weights are not included.
+目录内已经放好三套 CUDA 内核（`.so` 已解包）：
 
-For installation and example workflows, see the **[ComfyUI guide](comfyui/README.md)**
-or **[中文安装指南](comfyui/INSTALL.zh-CN.md)**.
+```
+custom_nodes/ComfyUI-Spark-H3/
+├── spark_backend_selector.py     ← 运行时按算力选内核
+├── kernels/
+│   ├── sm86/...    RTX 30 系
+│   ├── sm89/...    RTX 40 系
+│   └── sm120/...   RTX 50 系、RTX PRO 5000/6000 Blackwell
+├── comfyui_nodes.py
+├── comfyui_backend.py
+├── selfcheck.py
+├── workflows/                    ← 5 个示例，已使用 Auto 节点
+└── web/
+```
 
-For reference-video compression in Ref2VA workflows, install the separate
-**[VPack v0.1.0](https://github.com/zechengtang/VPack)** plugin.
+ComfyUI 启动加载节点包时立即探测：
 
-## Step-count convention
+```
+torch.cuda.get_device_capability()
+  → (8,6) sm86 / (8,9) sm89 / (12,0) sm120
+  → 把对应目录加入 sys.path 并 import
+  → [Spark-H3] GPU SM89 -> 使用 sm89 内核：.../kernels/sm89
+```
 
-`MiniMaxH3Scheduler` includes the final `σ=0` endpoint in
-`num_inference_steps`, so the default `num_inference_steps=50` runs 49 denoising steps. See the
-[Hugging Face scheduler documentation](https://huggingface.co/docs/diffusers/main/api/schedulers/minimax_h3).
+首次推理时还会用张量所在设备复核一次，`--cuda-device 1` 也能选对。
 
-<!-- ### Benchmark comparability
+## 节点
 
-Match the **actual** `torch.compile` state across all Diffusers runs before
-comparing quality or speed. In a controlled 25-prompt H3 check, switching
-denoising compilation changed Spark PSNR by **3.15 dB**, despite otherwise
-matched settings. This is a protocol difference, not evidence of a Spark
-kernel regression. Do not mix compiled and uncompiled benchmark results.
-The sibling MiniMax-H3-Benchmark's standard Diffusers denoising runner and
-radial/attention harnesses require compilation and verify that all transformer
-blocks were wrapped. Do not mix their results
-with historical uncompiled experiments.
+新增自动节点：
 
-`inputs` contains your pipeline's generation arguments. The context manager
-restores the original attention processors on exit.
+```
+MiniMax H3 Spark Attention (Auto · RTX 30/40/50)
+```
 
-→ See the [usage and configuration guide](h3_sparse_attention/README.md) for
-requirements, defaults, and options. -->
+接线与官方一致：
 
-<a id="todo"></a>
-<a id="project-status"></a>
+```
+UNETLoader ──MODEL──> Spark Attention (Auto) ──MODEL──> BasicGuider
+                                                 └────> BasicScheduler
+```
 
-## 🧭 Project Status & Roadmap
+原有的 `(SM86)` / `(SM89)` / `(SM120)` 节点保留，用于锁定架构排查。
+通用部署请使用 Auto 节点；自带示例工作流已全部改为 Auto。
 
-The Diffusers and ComfyUI integrations are separate implementation tracks.
-Their status is listed independently below so that backend work is not confused
-with ComfyUI packaging or compatibility work.
+旧工作流迁移：
 
-### Diffusers / Python
+```bash
+sed -i 's/MiniMaxH3SparkAttentionSM120/MiniMaxH3SparkAttentionAuto/g' 你的工作流.json
+```
 
-| Status | Item | Resources |
+## 内核版本
+
+- `spark_h3_kitchen` **0.2.37**（作者推荐的默认实现，发布测试中速度和稳定性优于 0.2.39）
+- 与 ComfyUI 官方 `comfy-kitchen` 完全解耦：使用独立 `spark_h3_kitchen` 命名空间，
+  不替换、不降级、不锁定官方包，也不校验其版本
+- 内核来源：官方 `ComfyUI-Spark-H3-0.2.0-*-cu130.zip`，未修改任何 CUDA 内核
+
+## 前提条件
+
+- ComfyUI 0.38.x–0.40.x 或 0.42.x–0.44.x，且带原生 MiniMax-H3 支持
+- Python 3.12+
+- PyTorch 为 CUDA 13.0 构建（`torch.version.cuda >= 13.0`）
+- NVIDIA SM86 / SM89 / SM120 显卡
+
+## 验证
+
+启动日志：
+
+```
+[Spark-H3] GPU SM89 -> 使用 sm89 内核：/.../custom_nodes/ComfyUI-Spark-H3/kernels/sm89
+```
+
+容器内自检：
+
+```bash
+python /path/to/custom_nodes/ComfyUI-Spark-H3/selfcheck.py
+```
+
+## 限制
+
+1. 一个 ComfyUI 进程只能绑定一种架构（CUDA 扩展加载后无法卸载）。
+   一卡一实例没问题；同一进程混用 40 系和 50 系需要拆成多个实例。
+2. 不支持 A100 / A800（SM80），官方没有对应预编译内核。
+3. 内核要求 CUDA 13.0，这是官方 wheel 的构建条件。
+
+## 排错
+
+| 现象 | 原因 | 处理 |
 |---|---|---|
-| ✅ Available | Spark attention integration for MiniMax-H3, with fused kernels for SM80, SM86, SM89, and SM120 | [Usage and kernel documentation](h3_sparse_attention/README.md) · [Performance matrix](docs/kernel_performance_matrix.md) |
-| ✅ Available | Ref2VA pipeline support and released inference examples | [Spark-Ref2VA Preview](https://zechengtang.github.io/Spark-H3/#spark-ref2va-preview) |
-| 🗓️ Planned | Fused Spark kernels for SM90 and SM100 | Pending hardware resources |
-| 🗓️ Planned | Technical report release | — |
+| `内核不支持当前显卡：SM80` | A100/A800 | 不支持 |
+| `内核目录不完整` | `kernels/` 缺失 | 重新复制节点目录 |
+| `检测到已加载的 spark_h3_kitchen 与当前显卡不匹配` | 残留旧 `install.py` 安装的包 | `pip uninstall -y spark-h3-kitchen` |
+| 节点列表看不到 Auto | 目录位置不对 | 确认 `custom_nodes/ComfyUI-Spark-H3/__init__.py` 存在 |
 
-### ComfyUI
+## 可选环境变量
 
-| Version | Date | Status | Main improvements / expected updates | Release / tracking |
-|---|---|---|---|---|
-| v0.1.1 | 2026-10-09 | ✅ Released | First stable Linux packages for SM89 and SM120; fixed the v0.1.0 CUDA Graph allocation-lifetime issue; bundled five representative workflows | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.1.1) |
-| v0.1.2 | 2026-10-11 | ✅ Released | Added validated Windows SM89 and SM120 packages; corrected packaged workflows and optimized the LBH two-pass example | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.1.2) |
-| v0.1.3 | 2026-10-13 | ✅ Released | Added validated SM86 packages; integrated with KJNodes low-VRAM patches; added `fidelity`, `speed`, `custom`, and `dense` presets plus selectable dense backends | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.1.3) |
-| v0.1.4 | 2026-10-15 | ✅ Released | Added ComfyUI 0.40.x support, Ref2VA-aware `sparse_scope`, configurable `producer_chunk`, and in-node Ref2VA guidance | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.1.4) |
-| v0.1.5 | 2026-10-19 | ✅ Released | Added ComfyUI 0.42.x support through comfy-kitchen 0.2.39; released Linux and Windows SM86/SM89/SM120 packages, each also bundling wheels for ComfyUI 0.38.x–0.40.x | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.1.5) |
-| v0.2.0 | 2026-11-06 | ✅ Released | Decouples Spark-H3 from ComfyUI's official `comfy-kitchen` dependency by using an isolated backend; supports ComfyUI 0.38.x–0.40.x and 0.42.x–0.44.x; recommends the default 0.2.37 backend for better tested speed and stability | [Release notes](https://github.com/zechengtang/Spark-H3/releases/tag/comfyui-v0.2.0) |
+| 变量 | 作用 |
+|---|---|
+| `SPARK_H3_KERNEL_ROOT` | 改用外部内核目录，优先于包内 `kernels/` |
+| `H3_SPARK_PRODUCER_CHUNK` | Q/K/V 分块大小，默认 16384 |
 
-The v0.2.0 release supports ComfyUI 0.38.x–0.40.x and 0.42.x–0.44.x with
-Linux and Windows x86_64 packages for SM86, SM89, and SM120.
-See the [ComfyUI guide](comfyui/README.md)
-for workflows and the [installation guide](comfyui/standalone/README.md) for
-package details. Reference-video compression is provided separately by
-[VPack](https://github.com/zechengtang/VPack).
+## 许可
 
-## 🤝 Acknowledgments
- 
-Thanks to [MiniMax-H3](https://github.com/MiniMax-AI/MiniMax-H3) and
-[Sol-Attn / Sol-Engine](https://github.com/NVlabs/Sana/tree/sol-engine) for the
-model and attention infrastructure. See the [third-party notices](sol_attn/THIRD_PARTY_NOTICES.md)
-for kernel attributions and included licenses.
+- 本项目基于 [Spark-H3](https://github.com/zechengtang/Spark-H3)，Apache-2.0
+- 内置的 `spark_h3_kitchen` 二进制来自 ComfyUI `comfy-kitchen`，Apache-2.0，
+  许可证见 `custom_nodes/ComfyUI-Spark-H3/kernels/LICENSE.spark_h3_kitchen`
+  与 `NOTICE.spark_h3_kitchen`
 
-<a id="special-thanks"></a>
-
-## ❤️ Special Thanks
-
-- Thanks to **Smthem** ([GitHub](https://github.com/smthemex) · [Bilibili](https://space.bilibili.com/439655233)) for support and help during the development of Spark-H3's ComfyUI plugin.
-- Thanks to **AI绘画KK** ([GitHub](https://github.com/kkget) · [Bilibili](https://space.bilibili.com/313528845)) for valuable guidance and support in exploring and applying MiniMax-H3 workflows, and for helping communicate the community's need for Windows installation packages.
-- Thanks to **AIwood爱屋研究室** ([GitHub](https://github.com/slmonker) · [Bilibili](https://space.bilibili.com/503934057)) for identifying a bug when Spark-H3 was used in a two-pass sampling workflow and suggesting a switch to Kitchen as the dense backend, which further improved the plugin's speedup ratio.
-
-## ⭐ Star History
-
-<p align="center">
-  <a href="https://www.star-history.com/?repos=zechengtang%2FSpark-H3&amp;type=date&amp;legend=top-left">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zechengtang/Spark-H3&amp;type=date&amp;theme=dark&amp;legend=top-left">
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=zechengtang/Spark-H3&amp;type=date&amp;legend=top-left">
-      <img alt="Spark-H3 GitHub star history chart" src="https://api.star-history.com/chart?repos=zechengtang/Spark-H3&amp;type=date&amp;legend=top-left" width="720">
-    </picture>
-  </a>
-</p>
-
-## 📄 License
-
-Spark-Attn’s original code and documentation are licensed under the
-[Apache License 2.0](LICENSE). Third-party components retain their original
-licenses and notices; see [third-party notices](sol_attn/THIRD_PARTY_NOTICES.md).
-MiniMax-H3 model weights remain subject to their upstream license.
+本仓库只做了运行时架构选择与节点入口适配，未修改任何 CUDA 内核。
